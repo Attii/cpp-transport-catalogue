@@ -22,17 +22,46 @@ struct Stop
 		, coordinates_(coordinates)
 	{
 	}
+};
 
-	bool operator==(const Stop &other) {
-		return (name_ == other.name_) && (coordinates_  == other.coordinates_);
+struct RouteInfo 
+{
+	const std::string_view name_;
+	int unique_stops_ = 0;
+	int stops_num_ = 0;
+	double distance_ = 0.0;
+
+	RouteInfo() = default;
+
+	RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+		: name_(route)
+		, unique_stops_(unique_stops)
+		, stops_num_(stops_num)
+		, distance_(route_len)
+	{
 	}
 };
 
-struct CompareStrings{
-	bool operator()(const Stop& lhs, const Stop& rhs) {
-		return lhs.name_ < rhs.name_;
+struct StopInfo
+{
+	const std::string_view name_;
+	const std::set<std::string_view>* buses_ = nullptr;
+
+	StopInfo() = default;
+
+	StopInfo(std::string_view name, const std::set<std::string_view>* buses)
+		: name_(name)
+		, buses_(buses)
+	{
 	}
 };
+
+
+// struct CompareStrings{
+// 	bool operator()(const Stop& lhs, const Stop& rhs) {
+// 		return lhs.name_ < rhs.name_;
+// 	}
+// };
 
 // class StopHasher {
 // public:
@@ -46,10 +75,13 @@ struct CompareStrings{
 
 class TransportCatalogue {
 public:
-	void AddRoute(std::string_view route_num, const std::vector<std::string_view> route);
-
+	void AddRoute(std::string_view route_num, const std::vector<std::string_view> &route);
 	void AddStop(const std::string_view stop_name, Coordinates coordinates);
 
+	RouteInfo GetRouteInfo(std:: string_view route) const;
+	StopInfo GetStopInfo(std::string_view stop) const;
+
+private:
 	const std::deque<const Stop*>* GetRoute(std::string_view route_num) const;
 
 	const Stop* GetStop(std::string_view stop_name) const; 
@@ -58,11 +90,10 @@ public:
 
 	int CountRouteUniqueStops(std::string_view route_num) const;
 
-	const std::set<std::string_view>* GetStopInfo(std::string_view stop) const;
+	std::unordered_set<std::string> stops_storage_;
+	std::unordered_set<std::string> buses_storage_;
 
-private:
-	std::unordered_set<std::string> storage_;
 	std::unordered_map<std::string_view, Stop> stops_;
-	std::unordered_map<std::string_view, std::deque<const Stop*>> routes_; // <route number, route in deque>
+	std::unordered_map<std::string_view, std::deque<const Stop*>> routes_; // <bus , stops in deque>
 	std::unordered_map<std::string_view, std::set<std::string_view>> stops_to_buses_; 
 };

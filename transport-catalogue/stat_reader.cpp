@@ -1,51 +1,45 @@
 #include "stat_reader.h"
 #include <iostream>
 
-std::pair<StringType, std::string_view> ParseRequest(std::string_view str) {
+std::pair<RequestType, std::string_view> ParseRequest(std::string_view str) {
     size_t spacePos = str.find(' ');
     if (spacePos == std::string_view::npos) {
         throw std::invalid_argument("Invalid format: no space found");
     }
 
     std::string_view type = str.substr(0, spacePos);
-    std::string_view x = str.substr(spacePos + 1);
+    std::string_view id = str.substr(spacePos + 1);
 
     if (type == "Bus") {
-        return {StringType::Bus, x};
+        return {RequestType::Bus, id};
     } else if (type == "Stop") {
-        return {StringType::Stop, x};
+        return {RequestType::Stop, id};
     } else {
-        return {StringType::Unknown, ""};
+        return {RequestType::Unknown, ""};
     }
 }
 
-
-void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string_view request,
-                       std::ostream& output) {
-    
-    auto str_info = ParseRequest(request);
-
-    if (str_info.first == StringType::Bus) {
-        if (tansport_catalogue.GetRoute(str_info.second)) {
-            output << "Bus " << str_info.second << ": " << tansport_catalogue.GetRoute(str_info.second)->size();
-            output << " stops on route, " << tansport_catalogue.CountRouteUniqueStops(str_info.second);
-            output << " unique stops, " << tansport_catalogue.GetRouteDistance(str_info.second);
-            output << " route length\n";
-        } 
-        else {
-            output << "Bus " << str_info.second << ": " << "not found\n";
-        }
+void PrintRouteInfo(const RouteInfo& route_info, std::ostream& output) {
+    if (route_info.stops_num_ != 0) {
+        output << "Bus " << route_info.name_ << ": " << route_info.stops_num_;
+        output << " stops on route, " << route_info.unique_stops_;
+        output << " unique stops, " << route_info.distance_;
+        output << " route length\n";
     } 
     else {
-        output << "Stop " << str_info.second << ": ";
-        if (tansport_catalogue.GetStop(str_info.second)) {
-            const std::set<std::string_view>* buses = tansport_catalogue.GetStopInfo(str_info.second);
-            if (buses->size() == 0) {
+        output << "Bus " << route_info.name_ << ": " << "not found\n";
+    }
+}
+
+void PrintStopInfo(const StopInfo& stop_info, std::ostream& output) {
+    output << "Stop " << stop_info.name_ << ": ";
+        if (stop_info.buses_ != nullptr) {
+            if (stop_info.buses_->size() == 0) {
                 output << "no buses\n";
             } 
             else {
                 output << "buses ";
-                for(const auto& bus : *buses) {
+                for(const auto& bus : *stop_info.buses_) {
                     output << bus << " ";
                 }
                 output << "\n";
@@ -54,6 +48,19 @@ void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string
         else {
             output << "not found\n";
         }
+}
+
+
+void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string_view request,
+                       std::ostream& output) {
+    
+    auto str_info = ParseRequest(request);
+
+    if (str_info.first == RequestType::Bus) {
+        PrintRouteInfo(tansport_catalogue.GetRouteInfo(str_info.second), output);
+    } 
+    else {
+        PrintStopInfo(tansport_catalogue.GetStopInfo(str_info.second), output);
     }    
 
 }

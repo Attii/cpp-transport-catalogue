@@ -3,21 +3,36 @@
 #include<iostream>
 
 void TransportCatalogue::AddStop(const std::string_view stop_name, Coordinates coordinates) {
-    const auto stop_name_it = storage_.emplace(stop_name).first;
+    const auto stop_name_it = stops_storage_.emplace(stop_name).first;
     stops_[*stop_name_it] = Stop(*stop_name_it, coordinates);
     stops_to_buses_[*stop_name_it] = {};
 }
 
-void TransportCatalogue::AddRoute(std::string_view route_num, const std::vector<std::string_view> route) {
-    const auto route_num_it = storage_.emplace(route_num).first;
+void TransportCatalogue::AddRoute(std::string_view route_num, const std::vector<std::string_view> &route) {
+    const auto route_num_it = buses_storage_.emplace(route_num).first;
     for(const auto stop : route) {
         stops_to_buses_[stop].insert(*route_num_it);
         routes_[*route_num_it].push_back(&stops_.at(stop));
     }
 }
 
+RouteInfo TransportCatalogue::GetRouteInfo(std:: string_view route) const {
+    if (GetRoute(route) != nullptr) {
+        return {route, CountRouteUniqueStops(route), static_cast<int>(GetRoute(route)->size()), GetRouteDistance(route)};
+    } 
+    return {route, 0, 0, 0.0};
+}
+
+StopInfo TransportCatalogue::GetStopInfo(std::string_view stop) const {
+    if (stops_to_buses_.count(stop) == 0) {
+        return {stop, nullptr};
+    }
+
+    return StopInfo(stop, &stops_to_buses_.at(stop));
+}
+
 const std::deque<const Stop*>* TransportCatalogue::GetRoute(std::string_view route_num) const {
-    if(!routes_.count(route_num)) {
+    if(routes_.count(route_num) == 0) {
         return nullptr;
     }
     
@@ -25,7 +40,7 @@ const std::deque<const Stop*>* TransportCatalogue::GetRoute(std::string_view rou
 } 
 
 const Stop* TransportCatalogue::GetStop(std::string_view stop_name) const {
-    if (!stops_.count(stop_name)) {
+    if (stops_.count(stop_name) == 0) {
         return nullptr;
     }
 
@@ -33,7 +48,7 @@ const Stop* TransportCatalogue::GetStop(std::string_view stop_name) const {
 }
 
 double TransportCatalogue::GetRouteDistance(std::string_view route_num) const {
-    if(!routes_.count(route_num)) {
+    if(routes_.count(route_num) == 0) {
         throw std::out_of_range("not found");
     }
     double dist = 0.0;
@@ -47,7 +62,7 @@ double TransportCatalogue::GetRouteDistance(std::string_view route_num) const {
 }
 
 int TransportCatalogue::CountRouteUniqueStops(std::string_view route_num) const { 
-    if(!routes_.count(route_num)) {
+    if(routes_.count(route_num) == 0) {
         throw std::out_of_range("not found");
     }
 
@@ -58,12 +73,4 @@ int TransportCatalogue::CountRouteUniqueStops(std::string_view route_num) const 
     }
 
     return unique_stops.size();
-}
-
-const std::set<std::string_view>* TransportCatalogue::GetStopInfo(std::string_view stop) const {
-    if (!stops_to_buses_.count(stop)) {
-        return nullptr;
-    }
-
-    return &stops_to_buses_.at(stop);
 }
