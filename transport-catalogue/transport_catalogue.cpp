@@ -1,11 +1,20 @@
 #include "transport_catalogue.h"
 
-#include<iostream>
-
 void TransportCatalogue::AddStop(const std::string_view stop_name, Coordinates coordinates) {
     const auto stop_name_it = stops_storage_.emplace(stop_name).first;
     stops_[*stop_name_it] = Stop(*stop_name_it, coordinates);
     stops_to_buses_[*stop_name_it] = {};
+}
+
+void TransportCatalogue::AddStop(const std::string_view stop_name, Coordinates coordinates, std::unordered_map<std::string_view, int> distance_to) {
+    const auto stop_name_it = stops_storage_.emplace(stop_name).first;      // Я понимаю, что это повторение кода вышше, что можно просто вызвать AddStop(stop_name, coordinates),
+    stops_[*stop_name_it] = Stop(*stop_name_it, coordinates);               // но мне нужен итератор после добавления в set для дальнейшего цикла, чтобы не искать остановку снова в set'е.
+    stops_to_buses_[*stop_name_it] = {};                                    // Или все-таки не так критично и можно просто один раз вызвать stops_storage_.find(std::string(stop_name))???
+
+    for (auto [stop, dist] : distance_to) {
+        auto stop_it = stops_storage_.emplace(stop).first;;
+        distances_between_stops_[{*stop_name_it, *stop_it}] = dist;
+    }
 }
 
 void TransportCatalogue::AddRoute(std::string_view route_num, const std::vector<std::string_view> &route) {
@@ -18,9 +27,10 @@ void TransportCatalogue::AddRoute(std::string_view route_num, const std::vector<
 
 RouteInfo TransportCatalogue::GetRouteInfo(std:: string_view route) const {
     if (GetRoute(route) != nullptr) {
-        return {route, CountRouteUniqueStops(route), static_cast<int>(GetRoute(route)->size()), GetRouteDistance(route)};
+        auto [road_d, geo_d] = GetRoadGeoDistance(route);
+        return {route, CountRouteUniqueStops(route), static_cast<int>(GetRoute(route)->size()), road_d, road_d / geo_d};
     } 
-    return {route, 0, 0, 0.0};
+    return {route, 0, 0, 0.0, 0.0};
 }
 
 StopInfo TransportCatalogue::GetStopInfo(std::string_view stop) const {
@@ -47,20 +57,37 @@ const Stop* TransportCatalogue::GetStop(std::string_view stop_name) const {
     return &(stops_.at(stop_name));
 }
 
-double TransportCatalogue::GetRouteDistance(std::string_view route_num) const {
+int TransportCatalogue::GetRoadDistanceBetweenStops(const std::string_view stop1, const std::string_view stop2) const {
+    auto res = distances_between_stops_.find({stop1, stop2});
+    if (res != distances_between_stops_.end()) {
+        return (*res).second;
+    } 
+
+    res = distances_between_stops_.find({stop2, stop1});
+    if (res != distances_between_stops_.end()) {
+        return (*res).second;
+    } 
+
+    return 0;
+}
+
+std::pair<double, double> TransportCatalogue::GetRoadGeoDistance(std::string_view route_num) const {
     if(routes_.count(route_num) == 0) {
         throw std::out_of_range("not found");
     }
-    double dist = 0.0;
+
+    double road_dist = 0.0;
+    double geo_dist = 0.0;
 
     const auto &route = routes_.at(route_num);
 
     const size_t route_size = route.size();
     for (size_t i = 1; i < route_size; ++i) {
-        dist += ComputeDistance(route[i-1]->coordinates_, route[i]->coordinates_);
+        road_dist += GetRoadDistanceBetweenStops(route[i-1]->name_, route[i]->name_);
+        geo_dist += ComputeDistance(route[i-1]->coordinates_, route[i]->coordinates_);
     }
     
-    return dist;
+    return {road_dist, geo_dist};
 }
 
 int TransportCatalogue::CountRouteUniqueStops(std::string_view route_num) const { 

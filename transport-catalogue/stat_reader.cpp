@@ -24,7 +24,8 @@ void PrintRouteInfo(const RouteInfo& route_info, std::ostream& output) {
         output << "Bus " << route_info.name_ << ": " << route_info.stops_num_;
         output << " stops on route, " << route_info.unique_stops_;
         output << " unique stops, " << route_info.distance_;
-        output << " route length\n";
+        output << " route length, " << route_info.curvature_;
+        output << " curvature\n";
     } 
     else {
         output << "Bus " << route_info.name_ << ": " << "not found\n";

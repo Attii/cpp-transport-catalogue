@@ -29,14 +29,16 @@ struct RouteInfo
 	int unique_stops_ = 0;
 	int stops_num_ = 0;
 	double distance_ = 0.0;
+	double curvature_ = 0.0;
 
 	RouteInfo() = default;
 
-	RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+	RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len, double curvature) 
 		: name_(route)
 		, unique_stops_(unique_stops)
 		, stops_num_(stops_num)
 		, distance_(route_len)
+		, curvature_(curvature)
 	{
 	}
 };
@@ -55,10 +57,22 @@ struct StopInfo
 	}
 };
 
+class PairStopsHasher {
+public:
+	size_t operator()(const std::pair<std::string_view, std::string_view> var) const {
+		return static_cast<size_t>(hasher_(var.first) + 17*hasher_(var.second)); 
+	}
+
+private:
+	std::hash<std::string_view> hasher_;
+};
+
 class TransportCatalogue {
 public:
 	void AddRoute(std::string_view route_num, const std::vector<std::string_view> &route);
 	void AddStop(const std::string_view stop_name, Coordinates coordinates);
+	void AddStop(const std::string_view stop_name, Coordinates coordinates, 
+				 std::unordered_map<std::string_view, int> distance_to);
 
 	[[nodiscard]] RouteInfo GetRouteInfo(std:: string_view route) const;
 	[[nodiscard]] StopInfo GetStopInfo(std::string_view stop) const;
@@ -68,9 +82,11 @@ private:
 
 	[[nodiscard]] const Stop* GetStop(std::string_view stop_name) const; 
 
-	[[nodiscard]] double GetRouteDistance(std::string_view route_num) const;
+	[[nodiscard]] std::pair<double, double> GetRoadGeoDistance(std::string_view route_num) const;
 
 	[[nodiscard]] int CountRouteUniqueStops(std::string_view route_num) const;
+
+	[[nodiscard]] int GetRoadDistanceBetweenStops(const std::string_view stop1, const std::string_view stop2) const;
 
 	std::unordered_set<std::string> stops_storage_;
 	std::unordered_set<std::string> buses_storage_;
@@ -78,4 +94,5 @@ private:
 	std::unordered_map<std::string_view, Stop> stops_;
 	std::unordered_map<std::string_view, std::deque<const Stop*>> routes_; // <bus , stops in deque>
 	std::unordered_map<std::string_view, std::set<std::string_view>> stops_to_buses_; 
+	std::unordered_map<std::pair<std::string_view, std::string_view>, int,  PairStopsHasher> distances_between_stops_;
 };

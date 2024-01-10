@@ -4,6 +4,8 @@
 #include <cassert>
 #include <iterator>
 
+#include <iostream>
+
 /**
  * Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
  */
@@ -74,6 +76,32 @@ std::vector<std::string_view> ParseRoute(std::string_view route) {
     return results;
 }
 
+using StopDescription = std::pair<Coordinates, std::unordered_map<std::string_view, int>>; 
+
+StopDescription ParseStopDescription(std::string_view line) {
+    std::unordered_map<std::string_view, int> distances_to;
+
+    auto second_comma = line.find(',',  line.find(',') + 1);
+
+    if (second_comma != line.npos)  {
+        // Получаем вектор string_view типа "DNm to stopN"
+        std::vector<std::string_view> distances_to_stops = Split(line.substr(second_comma+1), ',');
+
+        int dist;
+
+        for (auto dist_to_stop : distances_to_stops) {
+            dist = std::stoi(std::string(dist_to_stop.substr(0, dist_to_stop.find('m'))));
+
+            auto stop_begin = dist_to_stop.find_first_not_of(' ', dist_to_stop.find('o') + 1);
+
+            distances_to[dist_to_stop.substr(stop_begin)] = dist;
+        }         
+    }
+
+     
+    return {ParseCoordinates(line.substr(0, second_comma)), distances_to};
+}
+
 CommandDescription ParseCommandDescription(std::string_view line) {
     auto colon_pos = line.find(':');
     if (colon_pos == line.npos) {
@@ -119,7 +147,14 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
     }
         
     for (const auto& commandDes : stop_commands) {
-        catalogue.AddStop(commandDes->id, ParseCoordinates(commandDes->description));
+        auto [coordinates, distances] = ParseStopDescription(commandDes->description);
+
+        if (!distances.empty()) {
+            catalogue.AddStop(commandDes->id, coordinates, distances);
+        }
+        else {
+            catalogue.AddStop(commandDes->id, coordinates);
+        }
     }
 
     for (const auto& commandDes : bus_commands) {

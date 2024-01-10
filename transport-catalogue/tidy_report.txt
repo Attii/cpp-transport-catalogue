@@ -1,0 +1,122 @@
+error: invalid argument '--std=c++17' not allowed with 'C' [clang-diagnostic-error]
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:13:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+    for(const auto stop : route) {
+    ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:31:12: warning: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list]
+    return StopInfo(stop, &stops_to_buses_.at(stop));
+           ^~~~~~~~~                               ~
+           {                                       }
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:56:5: warning: 'auto &route' can be declared as 'const auto &route' [readability-qualified-auto]
+    auto &route = routes_.at(route_num);
+    ^
+    const 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:56:5: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:57:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+    for (size_t i = 1; i < route.size(); ++i) {
+    ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:57:24: warning: backward branch (for loop) is ID-dependent due to variable reference to 'route' and may cause performance degradation [altera-id-dependent-backward-branch]
+    for (size_t i = 1; i < route.size(); ++i) {
+                       ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:70:5: warning: 'auto &route' can be declared as 'const auto &route' [readability-qualified-auto]
+    auto &route = routes_.at(route_num);
+    ^
+    const 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:71:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+    for (const auto stops : route) {
+    ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:71:10: warning: 'const auto stops' can be declared as 'const auto *const stops' [readability-qualified-auto]
+    for (const auto stops : route) {
+         ^~~~~~~~~~~
+         const auto *const 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.cpp:75:12: warning: narrowing conversion from 'size_type' (aka 'unsigned long') to signed type 'int' is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    return unique_stops.size();
+           ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:2:10: error: 'string' file not found [clang-diagnostic-error]
+#include <string>
+         ^~~~~~~~
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:13:8: warning: constructor does not initialize these fields: name_, coordinates_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+struct Stop
+       ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:15:19: warning: member variable 'name_' has public visibility [misc-non-private-member-variables-in-classes]
+        std::string_view name_;
+                         ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:16:14: warning: member variable 'coordinates_' has public visibility [misc-non-private-member-variables-in-classes]
+        Coordinates coordinates_;
+                    ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:20:2: warning: constructor does not initialize these fields: name_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+        Stop(std::string_view name, Coordinates coordinates) 
+        ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:27:8: warning: constructor does not initialize these fields: name_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+struct RouteInfo 
+       ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:29:25: warning: member 'name_' of type 'const int' is const qualified [cppcoreguidelines-avoid-const-or-ref-data-members]
+        const std::string_view name_;
+                               ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:29:25: warning: member variable 'name_' has public visibility [misc-non-private-member-variables-in-classes]
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:30:6: warning: member variable 'unique_stops_' has public visibility [misc-non-private-member-variables-in-classes]
+        int unique_stops_ = 0;
+            ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:31:6: warning: member variable 'stops_num_' has public visibility [misc-non-private-member-variables-in-classes]
+        int stops_num_ = 0;
+            ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:32:9: warning: member variable 'distance_' has public visibility [misc-non-private-member-variables-in-classes]
+        double distance_ = 0.0;
+               ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:36:2: warning: constructor does not initialize these fields: name_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+        RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+        ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:36:12: warning: 4 adjacent parameters of 'RouteInfo' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+        RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:36:29: note: the first parameter in the range is 'route'
+        RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+                                   ^~~~~
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:36:76: note: the last parameter in the range is 'route_len'
+        RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+                                                                                  ^~~~~~~~~
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:36:69: note: 'int' and 'double' may be implicitly converted
+        RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len) 
+                                                                           ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:45:8: warning: constructor does not initialize these fields: name_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+struct StopInfo
+       ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:47:25: warning: member 'name_' of type 'const int' is const qualified [cppcoreguidelines-avoid-const-or-ref-data-members]
+        const std::string_view name_;
+                               ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:47:25: warning: member variable 'name_' has public visibility [misc-non-private-member-variables-in-classes]
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:48:36: warning: member variable 'buses_' has public visibility [misc-non-private-member-variables-in-classes]
+        const std::set<std::string_view>* buses_ = nullptr;
+                                          ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:52:2: warning: constructor does not initialize these fields: name_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+        StopInfo(std::string_view name, const std::set<std::string_view>* buses)
+        ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:59:7: warning: constructor does not initialize these fields: stops_storage_, buses_storage_, stops_ [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+class TransportCatalogue {
+      ^
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:62:15: warning: parameter 'stop_name' is const-qualified in the function declaration; const-qualification of parameters only has an effect in function definitions [readability-avoid-const-params-in-decls]
+        void AddStop(const std::string_view stop_name, Coordinates coordinates);
+                     ^~~~~~
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:64:2: warning: function 'GetRouteInfo' should be marked [[nodiscard]] [modernize-use-nodiscard]
+        RouteInfo GetRouteInfo(std:: string_view route) const;
+        ^
+        [[nodiscard]] 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:65:2: warning: function 'GetStopInfo' should be marked [[nodiscard]] [modernize-use-nodiscard]
+        StopInfo GetStopInfo(std::string_view stop) const;
+        ^
+        [[nodiscard]] 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:68:2: warning: function 'GetRoute' should be marked [[nodiscard]] [modernize-use-nodiscard]
+        const std::deque<const Stop*>* GetRoute(std::string_view route_num) const;
+        ^
+        [[nodiscard]] 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:70:2: warning: function 'GetStop' should be marked [[nodiscard]] [modernize-use-nodiscard]
+        const Stop* GetStop(std::string_view stop_name) const; 
+        ^
+        [[nodiscard]] 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:72:2: warning: function 'GetRoadGeoDistance' should be marked [[nodiscard]] [modernize-use-nodiscard]
+        double GetRoadGeoDistance(std::string_view route_num) const;
+        ^
+        [[nodiscard]] 
+/home/attii/CPPDir/Yandex/transport_guide/transport_catalogue.h:74:2: warning: function 'CountRouteUniqueStops' should be marked [[nodiscard]] [modernize-use-nodiscard]
+        int CountRouteUniqueStops(std::string_view route_num) const;
+        ^
+        [[nodiscard]] 
