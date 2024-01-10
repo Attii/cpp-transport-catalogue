@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-#include <string_view>
+//#include <string_view>
 #include <unordered_set>
 #include <unordered_map>
 #include <deque>
@@ -13,7 +12,7 @@
 struct Stop
 {
 	std::string_view name_;
-	Coordinates coordinates_;
+	Coordinates coordinates_ = {0, 0};
 
 	Stop() = default;
 
@@ -56,39 +55,22 @@ struct StopInfo
 	}
 };
 
-
-// struct CompareStrings{
-// 	bool operator()(const Stop& lhs, const Stop& rhs) {
-// 		return lhs.name_ < rhs.name_;
-// 	}
-// };
-
-// class StopHasher {
-// public:
-// 	size_t operator()(const Stop* stop) const {
-// 		return static_cast<size_t>(hasher(stop->name_));
-// 	}
-
-// private:
-// 	std::hash<std::string_view> hasher;
-// };
-
 class TransportCatalogue {
 public:
 	void AddRoute(std::string_view route_num, const std::vector<std::string_view> &route);
 	void AddStop(const std::string_view stop_name, Coordinates coordinates);
 
-	RouteInfo GetRouteInfo(std:: string_view route) const;
-	StopInfo GetStopInfo(std::string_view stop) const;
+	[[nodiscard]] RouteInfo GetRouteInfo(std:: string_view route) const;
+	[[nodiscard]] StopInfo GetStopInfo(std::string_view stop) const;
 
 private:
-	const std::deque<const Stop*>* GetRoute(std::string_view route_num) const;
+	[[nodiscard]] const std::deque<const Stop*>* GetRoute(std::string_view route_num) const;
 
-	const Stop* GetStop(std::string_view stop_name) const; 
+	[[nodiscard]] const Stop* GetStop(std::string_view stop_name) const; 
 
-	double GetRouteDistance(std::string_view route_num) const;
+	[[nodiscard]] double GetRouteDistance(std::string_view route_num) const;
 
-	int CountRouteUniqueStops(std::string_view route_num) const;
+	[[nodiscard]] int CountRouteUniqueStops(std::string_view route_num) const;
 
 	std::unordered_set<std::string> stops_storage_;
 	std::unordered_set<std::string> buses_storage_;

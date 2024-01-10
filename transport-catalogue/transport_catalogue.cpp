@@ -28,7 +28,7 @@ StopInfo TransportCatalogue::GetStopInfo(std::string_view stop) const {
         return {stop, nullptr};
     }
 
-    return StopInfo(stop, &stops_to_buses_.at(stop));
+    return {stop, &stops_to_buses_.at(stop)};
 }
 
 const std::deque<const Stop*>* TransportCatalogue::GetRoute(std::string_view route_num) const {
@@ -53,8 +53,10 @@ double TransportCatalogue::GetRouteDistance(std::string_view route_num) const {
     }
     double dist = 0.0;
 
-    auto &route = routes_.at(route_num);
-    for (size_t i = 1; i < route.size(); ++i) {
+    const auto &route = routes_.at(route_num);
+
+    const size_t route_size = route.size();
+    for (size_t i = 1; i < route_size; ++i) {
         dist += ComputeDistance(route[i-1]->coordinates_, route[i]->coordinates_);
     }
     
@@ -67,10 +69,10 @@ int TransportCatalogue::CountRouteUniqueStops(std::string_view route_num) const 
     }
 
     std::unordered_set<std::string_view> unique_stops;
-    auto &route = routes_.at(route_num);
-    for (const auto stops : route) {
+    const auto &route = routes_.at(route_num);
+    for (const auto *const stops : route) {
         unique_stops.insert(stops->name_);
     }
 
-    return unique_stops.size();
+    return static_cast<int>(unique_stops.size());
 }
