@@ -6,15 +6,22 @@ void TransportCatalogue::AddStop(const std::string_view stop_name, Coordinates c
     stops_to_buses_[*stop_name_it] = {};
 }
 
-void TransportCatalogue::AddStop(const std::string_view stop_name, Coordinates coordinates, std::unordered_map<std::string_view, int> distance_to) {
-    const auto stop_name_it = stops_storage_.emplace(stop_name).first;      // Я понимаю, что это повторение кода вышше, что можно просто вызвать AddStop(stop_name, coordinates),
-    stops_[*stop_name_it] = Stop(*stop_name_it, coordinates);               // но мне нужен итератор после добавления в set для дальнейшего цикла, чтобы не искать остановку снова в set'е.
-    stops_to_buses_[*stop_name_it] = {};                                    // Или все-таки не так критично и можно просто один раз вызвать stops_storage_.find(std::string(stop_name))???
+// void TransportCatalogue::AddStop(const std::string_view stop_name, Coordinates coordinates, std::unordered_map<std::string_view, int> distance_to) {
+//     const auto stop_name_it = stops_storage_.emplace(stop_name).first;      // Я понимаю, что это повторение кода вышше, что можно просто вызвать AddStop(stop_name, coordinates),
+//     stops_[*stop_name_it] = Stop(*stop_name_it, coordinates);               // но мне нужен итератор после добавления в set для дальнейшего цикла, чтобы не искать остановку снова в set'е.
+//     stops_to_buses_[*stop_name_it] = {};                                    // Или все-таки не так критично и можно просто один раз вызвать stops_storage_.find(std::string(stop_name))???
 
-    for (auto [stop, dist] : distance_to) {
-        auto stop_it = stops_storage_.emplace(stop).first;;
-        distances_between_stops_[{*stop_name_it, *stop_it}] = dist;
-    }
+//     for (auto [stop, dist] : distance_to) {
+//         auto stop_it = stops_storage_.emplace(stop).first;;
+//         distances_between_stops_[{*stop_name_it, *stop_it}] = dist;
+//     }
+// }
+
+void TransportCatalogue::AddDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop, int dist) {
+    const auto from_it = stops_storage_.emplace(from_stop).first;
+    const auto to_it = stops_storage_.emplace(to_stop).first;
+
+    distances_between_stops_[{*from_it, *to_it}] = dist;
 }
 
 void TransportCatalogue::AddRoute(std::string_view route_num, const std::vector<std::string_view> &route) {
@@ -71,7 +78,7 @@ int TransportCatalogue::GetRoadDistanceBetweenStops(const std::string_view stop1
     return 0;
 }
 
-std::pair<double, double> TransportCatalogue::GetRoadGeoDistance(std::string_view route_num) const {
+Distance TransportCatalogue::GetRoadGeoDistance(std::string_view route_num) const {
     if(routes_.count(route_num) == 0) {
         throw std::out_of_range("not found");
     }

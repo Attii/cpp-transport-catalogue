@@ -57,6 +57,19 @@ struct StopInfo
 	}
 };
 
+struct Distance
+{
+	double road_dist = 0.0;
+	double geo_dist = 0.0;
+
+	Distance(double road_d, double geo_d) 
+		: road_dist(road_d)
+		, geo_dist(geo_d)
+	{
+	}
+};
+
+
 class PairStopsHasher {
 public:
 	size_t operator()(const std::pair<std::string_view, std::string_view> var) const {
@@ -71,8 +84,9 @@ class TransportCatalogue {
 public:
 	void AddRoute(std::string_view route_num, const std::vector<std::string_view> &route);
 	void AddStop(const std::string_view stop_name, Coordinates coordinates);
-	void AddStop(const std::string_view stop_name, Coordinates coordinates, 
-				 std::unordered_map<std::string_view, int> distance_to);
+	//void AddStop(const std::string_view stop_name, Coordinates coordinates, 
+	//			 std::unordered_map<std::string_view, int> distance_to);
+	void AddDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop, int dist);
 
 	[[nodiscard]] RouteInfo GetRouteInfo(std:: string_view route) const;
 	[[nodiscard]] StopInfo GetStopInfo(std::string_view stop) const;
@@ -82,7 +96,7 @@ private:
 
 	[[nodiscard]] const Stop* GetStop(std::string_view stop_name) const; 
 
-	[[nodiscard]] std::pair<double, double> GetRoadGeoDistance(std::string_view route_num) const;
+	[[nodiscard]] Distance GetRoadGeoDistance(std::string_view route_num) const;
 
 	[[nodiscard]] int CountRouteUniqueStops(std::string_view route_num) const;
 

@@ -149,11 +149,11 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
     for (const auto& commandDes : stop_commands) {
         auto [coordinates, distances] = ParseStopDescription(commandDes->description);
 
+        catalogue.AddStop(commandDes->id, coordinates);
         if (!distances.empty()) {
-            catalogue.AddStop(commandDes->id, coordinates, distances);
-        }
-        else {
-            catalogue.AddStop(commandDes->id, coordinates);
+            for (auto [stop, dist] : distances) {
+                catalogue.AddDistanceBetweenStops(commandDes->id, stop, dist);
+            }
         }
     }
 
