@@ -1,74 +1,17 @@
 #pragma once
-//#include <string_view>
+
 #include <unordered_set>
 #include <unordered_map>
 #include <deque>
 #include <vector>
 #include <stdexcept>
 #include <set>
+#include <algorithm>
 
+#include "domain.h"
 #include "geo.h"
 
-struct Stop
-{
-	std::string_view name_;
-	Coordinates coordinates_ = {0, 0};
-
-	Stop() = default;
-
-	Stop(std::string_view name, Coordinates coordinates) 
-		: name_(name)
-		, coordinates_(coordinates)
-	{
-	}
-};
-
-struct RouteInfo 
-{
-	const std::string_view name_;
-	int unique_stops_ = 0;
-	int stops_num_ = 0;
-	double distance_ = 0.0;
-	double curvature_ = 0.0;
-
-	RouteInfo() = default;
-
-	RouteInfo(std::string_view route, int unique_stops, int stops_num, double route_len, double curvature) 
-		: name_(route)
-		, unique_stops_(unique_stops)
-		, stops_num_(stops_num)
-		, distance_(route_len)
-		, curvature_(curvature)
-	{
-	}
-};
-
-struct StopInfo
-{
-	const std::string_view name_;
-	const std::set<std::string_view>* buses_ = nullptr;
-
-	StopInfo() = default;
-
-	StopInfo(std::string_view name, const std::set<std::string_view>* buses)
-		: name_(name)
-		, buses_(buses)
-	{
-	}
-};
-
-struct Distance
-{
-	double road_dist = 0.0;
-	double geo_dist = 0.0;
-
-	Distance(double road_d, double geo_d) 
-		: road_dist(road_d)
-		, geo_dist(geo_d)
-	{
-	}
-};
-
+using namespace geo;
 
 class PairStopsHasher {
 public:
@@ -82,14 +25,22 @@ private:
 
 class TransportCatalogue {
 public:
-	void AddRoute(std::string_view route_num, const std::vector<std::string_view> &route);
+	void AddRoute(std::string_view route_num, const std::vector<std::string_view> &route, bool is_rountrip);
 	void AddStop(const std::string_view stop_name, Coordinates coordinates);
-	//void AddStop(const std::string_view stop_name, Coordinates coordinates, 
-	//			 std::unordered_map<std::string_view, int> distance_to);
 	void AddDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop, int dist);
+
+	bool IsRoundTrip(const std::string_view route) const {return round_trips.count(route);}
 
 	[[nodiscard]] RouteInfo GetRouteInfo(std:: string_view route) const;
 	[[nodiscard]] StopInfo GetStopInfo(std::string_view stop) const;
+
+	const std::unordered_set<std::string>& GetStops() const {return stops_storage_;}
+
+	const std::unordered_map<std::string_view, std::deque<const Stop*>>& GetRoutes() const {return routes_;}
+
+	std::vector<std::string_view> GetRoutesName() const;
+	std::vector<std::string_view> GetStopsName() const;
+
 
 private:
 	[[nodiscard]] const std::deque<const Stop*>* GetRoute(std::string_view route_num) const;
@@ -104,6 +55,8 @@ private:
 
 	std::unordered_set<std::string> stops_storage_;
 	std::unordered_set<std::string> buses_storage_;
+
+	std::unordered_set<std::string_view> round_trips; // к сожалению, это костыль
 
 	std::unordered_map<std::string_view, Stop> stops_;
 	std::unordered_map<std::string_view, std::deque<const Stop*>> routes_; // <bus , stops in deque>

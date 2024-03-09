@@ -1,32 +1,30 @@
 #include <iostream>
-#include <string>
 
-#include "input_reader.h"
-#include "stat_reader.h"
+#include "json_reader.h"
+#include "request_handler.h"
 
+using namespace json;
 using namespace std;
 
 int main() {
     TransportCatalogue catalogue;
+    MapRenderer renderer;
+    
+    Document input_json(Load(cin));
+    // RequestHandler handler(catalogue, renderer);
 
-    int base_request_count;
-    cin >> base_request_count >> ws;
+    // handler.ProcessJSON(input_json.GetRoot());
+    // handler.RenderMap().Render(cout);
 
-    {
-        InputReader reader;
-        for (int i = 0; i < base_request_count; ++i) {
-            string line;
-            getline(cin, line);
-            reader.ParseLine(line);
-        }
-        reader.ApplyCommands(catalogue);
-    }
+    InputReader reader;
 
-    int stat_request_count;
-    cin >> stat_request_count >> ws;
-    for (int i = 0; i < stat_request_count; ++i) {
-        string line;
-        getline(cin, line);
-        ParseAndPrintStat(catalogue, line, cout);
-    }
+    reader.ParseJSON(input_json.GetRoot());
+
+    reader.ApplyBaseRequests(catalogue);
+
+    renderer.SetRenderSettings(reader.GetRenderSettings());
+    renderer.SetSphereProjector(catalogue);
+
+    auto res = reader.ApplyStatRequests(catalogue, renderer);
+    json::PrintNode(res, cout);
 }
